@@ -1,37 +1,37 @@
+import { useState, useContext, createContext } from "react";
 import axios from "axios";
-import React, { createContext, useContext, useState } from "react";
 
 const table = {
-  sports: 19,
+  sports: 21,
   history: 23,
   politics: 24,
 };
 
-export const AppContext = createContext();
-
-export const AppProvider = ({ children }) => {
-  const [waiting, setWaiting] = useState(true);
-  const [loading, setLoading] = useState(false);
-  const [question, setQuestion] = useState([]);
-  const [index, setIndex] = useState(0);
-  const [correct, setCorrect] = useState(0);
-  const [error, setError] = useState(false);
+const AppContext = createContext();
+const AppProvider = ({ children }) => {
+  const [waiting, setWaiting] = useState(true); //waiting
+  const [loading, setLoading] = useState(false); //loading
+  const [questions, setQuestions] = useState([]); //questions
+  const [index, setIndex] = useState(0); //index
+  const [correct, setCorrect] = useState(0); //correct
+  const [error, setError] = useState(false); //error
   const [quiz, setQuiz] = useState({
     amount: 10,
     category: "sports",
-    diffculty: "ease",
+    difficulty: "easy",
   });
   const [modal, setModal] = useState(false);
+  //fetchQuestions
 
-  const fetchQuestion = async (url) => {
+  const fetchQuestions = async (url) => {
     setLoading(true);
     setWaiting(false);
-    const response = await axios.get(url).catch((err) => console.log(err));
+    const response = await axios(url).catch((err) => console.log(err));
 
     if (response) {
       const data = response.data.results;
       if (data.length) {
-        setQuestion(data);
+        setQuestions(data);
         setLoading(false);
         setWaiting(false);
         setError(false);
@@ -43,7 +43,6 @@ export const AppProvider = ({ children }) => {
       setWaiting(true);
     }
   };
-
   const openModal = () => {
     setModal(true);
   };
@@ -56,8 +55,8 @@ export const AppProvider = ({ children }) => {
 
   const nextQuestion = () => {
     setIndex((oldIndex) => {
-      const index = oldIndex;
-      if (index > oldIndex.length - 1) {
+      const index = oldIndex + 1;
+      if (index > questions.length - 1) {
         openModal();
         return 0;
       } else {
@@ -65,19 +64,11 @@ export const AppProvider = ({ children }) => {
       }
     });
   };
-
   const checkAnswers = (value) => {
     if (value) {
       setCorrect((oldState) => oldState + 1);
     }
     nextQuestion();
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const { amount, category, diffculty } = quiz;
-    const url = `https://opentdb.com/api.php?amount=${amount}&difficulty=${diffculty}$category=${table[category]}&type=multiple`;
-    fetchQuestion(url);
   };
 
   const handleChange = (e) => {
@@ -86,40 +77,55 @@ export const AppProvider = ({ children }) => {
     setQuiz({ ...quiz, [name]: value });
   };
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const { amount, difficulty, category } = quiz;
+    const url = `https://opentdb.com/api.php?amount=${amount}&difficulty=${difficulty}&category=${table[category]}&type=multiple`;
+    fetchQuestions(url);
+  };
+
   return (
     <AppContext.Provider
       value={{
         waiting,
         loading,
-        question,
+        questions,
         index,
         correct,
         error,
-        quiz,
         modal,
         nextQuestion,
         checkAnswers,
         closeModal,
-        handleSubmit,
+        quiz,
         handleChange,
+        handleSubmit,
       }}
     >
       {children}
     </AppContext.Provider>
   );
 };
-
 export const useGlobalContext = () => {
   return useContext(AppContext);
 };
 
-// export { AppContext, AppProvider };
+export { AppContext, AppProvider };
+
+// if (error.response && error.response.status === 429) {
+//   const retryAfter = error.response.headers["retry-after"];
+//   // Retry after a delay (in seconds)
+//   setTimeout(() => fetchQuestions(url), retryAfter * 1000);
+// } else {
+//   console.log(error);
+//   setWaiting(true);
+// }
 
 // Action Types
 // export const Quiz_Action_Types = {
 //   SET_WAITING: "SET_WAITING",
 //   SET_LOADING: "SET_LOADING",
-//   SET_QUESTION: "SET_QUESTION",
+//   SET_questions: "SET_questions",
 //   SET_INDEX: "SET_INDEX",
 //   SET_CORRECT: "SET_CORRECT",
 //   SET_ERROR: "SET_ERROR",
@@ -135,8 +141,8 @@ export const useGlobalContext = () => {
 //       return { ...state, waiting: payload };
 //     case Quiz_Action_Types.SET_LOADING:
 //       return { ...state, loading: payload };
-//     case Quiz_Action_Types.SET_QUESTION:
-//       return { ...state, question: payload };
+//     case Quiz_Action_Types.SET_questions:
+//       return { ...state, questions: payload };
 //     case Quiz_Action_Types.SET_INDEX:
 //       return { ...state, index: payload };
 //     case Quiz_Action_Types.SET_CORRECT:
@@ -157,7 +163,7 @@ export const useGlobalContext = () => {
 // const initialState = {
 //   waiting: true,
 //   loading: false,
-//   question: [],
+//   questions: [],
 //   index: 0,
 //   correct: 0,
 //   error: false,
@@ -169,9 +175,9 @@ export const useGlobalContext = () => {
 //   modal: false,
 // };
 
-// const [{waiting, loading, question, index, correct, error, quiz, modal}, dispatch] = useReducer(quizReducer, initialState);
+// const [{waiting, loading, questions, index, correct, error, quiz, modal}, dispatch] = useReducer(quizReducer, initialState);
 
-// const { waiting, loading, question, index, correct, error, quiz, modal } =
+// const { waiting, loading, questions, index, correct, error, quiz, modal } =
 //   state;
 
 // Example of how to dispatch actions
