@@ -1,4 +1,5 @@
-import { useGlobalContext } from "../Context/Context";
+// import { useGlobalContext } from "../Context/Context-useReducer";
+import { useGlobalContext } from "../Context/Context-useState";
 
 export const SetUpForm = () => {
   const { quiz, handleChange, handleSubmit, error } = useGlobalContext();

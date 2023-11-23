@@ -1,4 +1,5 @@
-import { useGlobalContext } from "../Context/Context";
+// import { useGlobalContext } from "../Context/Context-useReducer";
+import { useGlobalContext } from "../Context/Context-useState";
 
 export const Modal = () => {
   const { modal, closeModal, correct, questions } = useGlobalContext();

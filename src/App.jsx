@@ -1,7 +1,8 @@
 import { SetUpForm } from "./Components/SetUpForm.jsx";
 import { LoadingScreen } from "./Components/LoadingScreen.jsx";
 import { Modal } from "./Components/Modal.jsx";
-import { useGlobalContext } from "./Context/Context.jsx";
+import { useGlobalContext } from "./Context/Context-useState.jsx";
+// import { useGlobalContext } from "./Context/Context-useReducer.jsx";
 function App() {
   const {
     waiting,
@@ -9,15 +10,19 @@ function App() {
     questions,
     index,
     correct,
-    nextQuestions,
+    nextQuestion,
     checkAnswers,
   } = useGlobalContext();
   if (waiting) {
     return <SetUpForm />;
   }
+
   if (loading) {
     return <LoadingScreen />;
   }
+
+  console.log("Index:", index);
+  // console.log("Questions:", questions);
 
   const { incorrect_answers, correct_answer, question } = questions[index];
   let answers = [...incorrect_answers];
@@ -51,7 +56,7 @@ function App() {
             })}
           </div>
         </article>
-        <button className="next-question" onClick={nextQuestions}>
+        <button className="next-question" onClick={nextQuestion}>
           next questions
         </button>
       </section>
